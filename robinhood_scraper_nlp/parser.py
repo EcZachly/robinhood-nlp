@@ -23,9 +23,6 @@ class NewsArticleData:
                              self.published_at, self.updated_at, self.source,
                              self.title, self.content])
 
-
-
-
 def remove_punctuation(line):
     return line.translate(str.maketrans('', '', string.punctuation))
 
@@ -34,6 +31,7 @@ class StockSymbol:
     def __init__(self, ticker, change):
         self.ticker = ticker
         self.change = change
+
 
 class NewsParser:
     def __init__(self, url, api_result):
