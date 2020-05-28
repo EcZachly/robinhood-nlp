@@ -1,4 +1,5 @@
 import string
+import os
 import requests
 import csv
 from bs4 import BeautifulSoup
@@ -15,13 +16,6 @@ class NewsArticleData:
         self.title = api_result['title']
         self.source = api_result['source']
 
-    def write_to_csv(self, filename):
-        with open(filename, newline='\n', encoding='utf-8',
-                  mode='a') as csv_file:
-            writer = csv.writer(csv_file)
-            writer.writerow([self.url, self.tickers, self.num_clicks,
-                             self.published_at, self.updated_at, self.source,
-                             self.title, self.content])
 
 def remove_punctuation(line):
     return line.translate(str.maketrans('', '', string.punctuation))
@@ -45,8 +39,12 @@ class NewsParser:
 class MarketWatchParser(NewsParser):
     def parse(self):
         if 'yahoo' not in self.url:
-            response = requests.get(self.url)
-            response.raise_for_status()
+            try:
+                response = requests.get(self.url)
+                response.raise_for_status()
+            except Exception:
+                print('Error getting url')
+                return
             html = response.text
             soup = BeautifulSoup(html, 'html.parser')
             tickers = soup.find_all(attrs={'class': 'qt-chip'})
