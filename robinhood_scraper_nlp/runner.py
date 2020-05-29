@@ -1,7 +1,8 @@
 import os
 import psycopg2
 import csv
-from parser import BloombergParser, MarketWatchParser, RobinhoodParser, GoogleNewsParser, YahooFinancialParser, CNBCParser, ReutersParser, BenzingaParser
+
+from robinhood_scraper_nlp.parser import BloombergParser, MarketWatchParser, RobinhoodParser, GoogleNewsParser, YahooFinancialParser, CNBCParser, ReutersParser, BenzingaParser
 from pyrh import Robinhood
 
 DEFAULT_TICKERS = ["FB", "AAPL", "AMZN", "NFLX", "GOOGL",

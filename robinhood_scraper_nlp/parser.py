@@ -1,7 +1,7 @@
 import string
 import requests
-from cleaner import ContentCleaner
-from scorer import ContentScorer
+from robinhood_scraper_nlp.cleaner import ContentCleaner
+from robinhood_scraper_nlp.scorer import ContentScorer
 from bs4 import BeautifulSoup
 
 

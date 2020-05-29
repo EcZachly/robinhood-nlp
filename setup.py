@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="robinhood-scraper-nlp",
-    version="0.0.3",
+    version="0.0.4",
     author="Zachary Wilson",
     author_email="zachwilson130@gmail.com",
     description="A package that interacts with Robinhood APIs to access news about stocks",
