@@ -1,7 +1,7 @@
 import string
-import os
 import requests
-import csv
+from cleaner import ContentCleaner
+from scorer import ContentScorer
 from bs4 import BeautifulSoup
 
 
@@ -15,6 +15,10 @@ class NewsArticleData:
         self.updated_at = api_result['updated_at']
         self.title = api_result['title']
         self.source = api_result['source']
+        self.cleaned_content = ContentCleaner.clean_text(content)
+        self.cleaned_title = ContentCleaner.clean_text(self.title)
+        self.scores = ContentScorer.score(self.cleaned_content)
+        self.title_scores = ContentScorer.score(self.cleaned_title)
 
 
 def remove_punctuation(line):

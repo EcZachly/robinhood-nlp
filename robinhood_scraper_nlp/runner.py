@@ -54,20 +54,44 @@ class ScraperRunner:
         for content in parsed_content:
             try:
                 query = """INSERT INTO {full_table_name} 
-                                  (url, title, source, content, tickers, num_clicks, published_at, updated_at) 
-                                  VALUES('{url}', '{title}', '{source}', '{content}', ARRAY{tickers}::TEXT[], {num_clicks}, '{published_at}', '{updated_at}')
-                                  ON CONFLICT (url) 
-                                  DO NOTHING;
+                                  (url, title, source, content, tickers, 
+                                    num_clicks, published_at, updated_at, cleaned_content,
+                                    content_positive_sentiment, content_negative_sentiment, content_neutral_sentiment,
+                                    title_positive_sentiment, title_negative_sentiment, title_neutral_sentiment
+                                  ) 
+                                  VALUES('{url}', '{title}', '{source}', '{content}', ARRAY{tickers}::TEXT[], {num_clicks}, '{published_at}', '{updated_at}', 
+                                        '{cleaned_content}', {content_positive_sentiment}, {content_negative_sentiment}, {content_neutral_sentiment}, 
+                                          {title_positive_sentiment}, {title_negative_sentiment}, {title_neutral_sentiment}   )
+                                  ON CONFLICT (url)                            
+                                  DO UPDATE
+	                              SET content = EXCLUDED.content, 
+	                                  cleaned_content = EXCLUDED.cleaned_content,
+	                                  num_clicks=EXCLUDED.num_clicks, 
+	                                  updated_at=EXCLUDED.updated_at,
+	                                  content_positive_sentiment=EXCLUDED.content_positive_sentiment,
+	                                  content_negative_sentiment=EXCLUDED.content_negative_sentiment,
+	                                  content_neutral_sentiment=EXCLUDED.content_neutral_sentiment,
+	                                  title_positive_sentiment=EXCLUDED.title_positive_sentiment,
+	                                  title_negative_sentiment=EXCLUDED.title_negative_sentiment,
+	                                  title_neutral_sentiment=EXCLUDED.title_neutral_sentiment
+	                                ;
                                   """.format(
                     full_table_name=full_table_name,
                     url=content.url,
                     source=content.source,
                     title=content.title.replace("'", "''").replace('"', '""'),
                     content=content.content.replace("'", "''").replace('"', '""'),
+                    cleaned_content=content.cleaned_content,
                     tickers=content.tickers,
                     num_clicks=content.num_clicks,
                     published_at=content.published_at,
-                    updated_at=content.updated_at
+                    updated_at=content.updated_at,
+                    content_positive_sentiment=content.scores['positive_sentiment'],
+                    content_negative_sentiment=content.scores['negative_sentiment'],
+                    content_neutral_sentiment=content.scores['neutral_sentiment'],
+                    title_positive_sentiment=content.title_scores['positive_sentiment'],
+                    title_negative_sentiment=content.title_scores['negative_sentiment'],
+                    title_neutral_sentiment=content.title_scores['neutral_sentiment']
                 )
                 cursor.execute(query)
                 connection.commit()

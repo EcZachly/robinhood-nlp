@@ -3,3 +3,4 @@ pyrh
 requests
 bs4
 cryptography
+nltk
