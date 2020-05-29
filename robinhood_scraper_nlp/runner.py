@@ -4,9 +4,11 @@ import csv
 from parser import BloombergParser, MarketWatchParser, RobinhoodParser, GoogleNewsParser, YahooFinancialParser, CNBCParser, ReutersParser, BenzingaParser
 from pyrh import Robinhood
 
-DEFAULT_TICKERS = ["NFLX", "FB", "FIT", "GOOGL", "NVDA",
+DEFAULT_TICKERS = ["FB", "AAPL", "AMZN", "NFLX", "GOOGL",
+                   "AMD", "TSM", "INTC", "NVDA",
                    "AMZN", "MSFT", "TSLA", "UBER", "CGC",
-                   "LYFT", "SNAP", "AAPL", "CRM"]
+                   "LYFT", "SNAP", "AAPL", "CRM", "ACB",
+                   "CRON", "APHA", "FIT", "GPRO", "SNAP", "TWTR"]
 
 
 class ScraperRunner:
@@ -53,7 +55,8 @@ class ScraperRunner:
         cursor = connection.cursor()
         for content in parsed_content:
             try:
-                query = """INSERT INTO {full_table_name} 
+                query = """
+                    INSERT INTO {full_table_name} 
                                   (url, title, source, content, tickers, 
                                     num_clicks, published_at, updated_at, cleaned_content,
                                     content_positive_sentiment, content_negative_sentiment, content_neutral_sentiment,
@@ -65,6 +68,7 @@ class ScraperRunner:
                                   ON CONFLICT (url)                            
                                   DO UPDATE
 	                              SET content = EXCLUDED.content, 
+	                                  tickers = EXCLUDED.tickers,
 	                                  cleaned_content = EXCLUDED.cleaned_content,
 	                                  num_clicks=EXCLUDED.num_clicks, 
 	                                  updated_at=EXCLUDED.updated_at,
@@ -74,8 +78,8 @@ class ScraperRunner:
 	                                  title_positive_sentiment=EXCLUDED.title_positive_sentiment,
 	                                  title_negative_sentiment=EXCLUDED.title_negative_sentiment,
 	                                  title_neutral_sentiment=EXCLUDED.title_neutral_sentiment
-	                                ;
-                                  """.format(
+	                              ;
+                    """.format(
                     full_table_name=full_table_name,
                     url=content.url,
                     source=content.source,
@@ -157,6 +161,8 @@ class ScraperRunner:
             if source in switch_block:
                 p = switch_block[source](url, result)
                 data = p.parse()
+                if ticker not in data.tickers:
+                    data.tickers.append(ticker)
             else:
                 print("No parser found for url:" + url)
             if data is not None:
@@ -164,12 +170,11 @@ class ScraperRunner:
         return fetched_results
 
 
-PASSWORD = os.environ.get("RESULTS_DATABASE_PASSWORD")
-USERNAME = os.environ.get("RESULTS_DATABASE_USERNAME")
-HOST = os.environ.get("RESULTS_DATABASE_HOST")
-DATABASE_NAME = os.environ.get("RESULTS_DATABASE_NAME")
-
 if __name__ == '__main__':
+    PASSWORD = os.environ.get("RESULTS_DATABASE_PASSWORD")
+    USERNAME = os.environ.get("RESULTS_DATABASE_USERNAME")
+    HOST = os.environ.get("RESULTS_DATABASE_HOST")
+    DATABASE_NAME = os.environ.get("RESULTS_DATABASE_NAME")
     ScraperRunner.run_scraper(mode="database",
                               database_name=DATABASE_NAME,
                               database_password=PASSWORD,
