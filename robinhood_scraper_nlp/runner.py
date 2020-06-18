@@ -1,16 +1,18 @@
 import os
 import psycopg2
 import csv
+from pprint import pprint
 
+from robinhood_scraper_nlp.models.article_data import NewsArticleData
 from robinhood_scraper_nlp.parser import BloombergParser, MarketWatchParser, RobinhoodParser, GoogleNewsParser, YahooFinancialParser, CNBCParser, ReutersParser, BenzingaParser
 from pyrh import Robinhood
 
-DEFAULT_TICKERS = ["FB", "AAPL", "AMZN", "NFLX", "GOOGL",
-                   "AMD", "TSM", "INTC", "NVDA",
-                   "AMZN", "MSFT", "TSLA", "UBER", "CGC",
-                   "LYFT", "SNAP", "AAPL", "CRM", "ACB",
-                   "CRON", "APHA", "FIT", "GPRO", "SNAP", "TWTR"]
-
+#DEFAULT_TICKERS = ["FB", "AAPL", "AMZN", "NFLX", "GOOGL",
+#                    "AMD", "TSM", "INTC", "NVDA",
+#                    "AMZN", "MSFT", "TSLA", "UBER", "CGC",
+#                    "LYFT", "SNAP", "AAPL", "CRM", "ACB",
+#                    "CRON", "APHA", "FIT", "GPRO", "SNAP", "TWTR"]
+DEFAULT_TICKERS = ["FB", "GOOGL"]
 
 class ScraperRunner:
 
@@ -44,7 +46,7 @@ class ScraperRunner:
             ScraperRunner.write_to_database(parsed_content, database_host, database_name, database_user, database_password, database_schema)
 
     @classmethod
-    def write_to_database(cls, parsed_content, host, database_name, username, password, schema, table_name="news_content"):
+    def write_to_database(cls, parsed_content: list[NewsArticleData], host, database_name, username, password, schema, table_name="news_content"):
         conn_string = "host={host} dbname={database_name} user={username} password={password} sslmode=require".format(
             host=host,
             database_name=database_name,
@@ -161,12 +163,13 @@ class ScraperRunner:
             data = None
             if source in switch_block:
                 p = switch_block[source](url, result)
-                data = p.parse()
+                data: NewsArticleData = p.parse()
                 if ticker not in data.tickers:
                     data.tickers.append(ticker)
             else:
                 print("No parser found for url:" + url)
             if data is not None:
+                pprint(vars(data))
                 fetched_results.append(data)
         return fetched_results
 

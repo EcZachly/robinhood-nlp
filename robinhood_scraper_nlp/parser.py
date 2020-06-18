@@ -1,25 +1,7 @@
 import string
 import requests
-from robinhood_scraper_nlp.cleaner import ContentCleaner
-from robinhood_scraper_nlp.scorer import ContentScorer
 from bs4 import BeautifulSoup
-
-
-class NewsArticleData:
-    def __init__(self, content, tickers, api_result):
-        self.content = content
-        self.tickers = tickers
-        self.url = api_result['url']
-        self.num_clicks = api_result['num_clicks']
-        self.published_at = api_result['published_at']
-        self.updated_at = api_result['updated_at']
-        self.title = api_result['title']
-        self.source = api_result['source']
-        self.cleaned_content = ContentCleaner.clean_text(content)
-        self.cleaned_title = ContentCleaner.clean_text(self.title)
-        self.scores = ContentScorer.score(self.cleaned_content)
-        self.title_scores = ContentScorer.score(self.cleaned_title)
-
+from robinhood_scraper_nlp.models.article_data import NewsArticleData
 
 def remove_punctuation(line):
     return line.translate(str.maketrans('', '', string.punctuation))
@@ -71,7 +53,8 @@ class MarketWatchParser(NewsParser):
                     if not contains_change and not contains_ticker:
                         filtered_content_rows.append(row)
             filtered_content = ' '.join(filtered_content_rows)
-            return NewsArticleData(content=filtered_content, tickers=mentioned_tickers_symbols, api_result=self.api_result)
+            return NewsArticleData(content=filtered_content, tickers=mentioned_tickers_symbols,
+                                   api_result=self.api_result)
         else:
             return NewsArticleData(content="", tickers=[], api_result=self.api_result)
 

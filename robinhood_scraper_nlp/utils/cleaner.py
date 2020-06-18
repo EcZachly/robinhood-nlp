@@ -38,9 +38,10 @@ def decontracted(phrase):
 
 
 class ContentCleaner:
-    @classmethod
-    def clean_text(cls, input_text):
 
+    @staticmethod
+    def clean_text(input_text):
+        print(input_text)
         stopwords = nltk.corpus.stopwords.words('english')
         cleaned_input = de_emojify(decontracted(input_text.lower())) #making all of the words lowercase in order to standardize our data
         words = cleaned_input.split()
@@ -50,7 +51,8 @@ class ContentCleaner:
             if not any(character in word for character in BAD_CHARACTERS) \
                     and cleaned_word not in stopwords:
                 cleaned_words.append(cleaned_word)
-        return ' '.join(cleaned_words)
+        cleaned_content = ' '.join(cleaned_words)
+        return cleaned_content
 
 
 
